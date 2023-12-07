@@ -6,9 +6,10 @@ import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
-import { LoginResponse } from './interface/login-user.interface';
+import { LoginResponse } from './interface/login-response.interface';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interface/jwt-payload.interface';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,7 @@ export class AuthService {
       return user;
 
     } catch (error) {
+      console.log(error);
       if (error.code === 11000) throw new BadRequestException(`${createUserDto.email} email ya existente!`);
       throw new InternalServerErrorException('Algo salio mal');
     }
@@ -41,21 +43,30 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<LoginResponse> {
     const { email, password } = loginDto;
-    const user = await this.userModel.findOne({ email });
+    const userIn = await this.userModel.findOne({ email });
 
-    if (!user) {
+    if (!userIn) {
       throw new UnauthorizedException('Credenciales no validas - email');
     }
 
-    if (!bcryptjs.compareSync(password, user.password)) {
+    if (!bcryptjs.compareSync(password, userIn.password)) {
       throw new UnauthorizedException('Credenciales no validas - password');
     }
 
-    const { password: _, ...rest } = user.toJSON();
+    const { password: _, ...user } = userIn.toJSON();
 
     return {
-      user: rest,
-      token: await this.createJwtToken({ id: user.id })
+      user: user,
+      token: await this.createJwtToken({ id: userIn.id })
+    }
+  }
+
+  async register(registerUserDto: RegisterUserDto): Promise<LoginResponse> {
+    const user = await this.create(registerUserDto);
+
+    return {
+      user,
+      token: await this.createJwtToken({ id: user._id })
     }
   }
 
