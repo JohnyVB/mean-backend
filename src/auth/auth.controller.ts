@@ -13,7 +13,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   // Funcion para crear usuario por el panel administrativo
-
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
