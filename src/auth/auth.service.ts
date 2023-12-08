@@ -56,7 +56,7 @@ export class AuthService {
     const { password: _, ...user } = userIn.toJSON();
 
     return {
-      user: user,
+      user,
       token: await this.createJwtToken({ id: userIn.id })
     }
   }
@@ -70,23 +70,27 @@ export class AuthService {
     }
   }
 
-  createJwtToken(payload: JwtPayload): Promise<string> {
-    return this.jwtService.signAsync(payload)
+  createJwtToken(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  findAll(): Promise<User[]> {
+    return this.userModel.find({}, { password: 0, __v: 0 });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findUserById(id: string): Promise<User> {
+    return await this.userModel.findById(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} auth`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} auth`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+  // update(id: number, updateUserDto: UpdateUserDto) {
+  //   return `This action updates a #${id} auth`;
+  // }
+
+  // remove(id: number) {
+  //   return `This action removes a #${id} auth`;
+  // }
 }

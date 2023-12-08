@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Exclude } from "class-transformer";
 
 @Schema()
 export class User {
@@ -7,7 +8,8 @@ export class User {
     email: string;
     @Prop({ required: true })
     name: string;
-    @Prop({ required: true, minlength: 6 })
+    @Exclude()
+    @Prop({ required: true, minlength: 6, })
     password?: string;
     @Prop({ default: true })
     isActive: boolean;
